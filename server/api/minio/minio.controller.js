@@ -21,8 +21,8 @@ const Users = require('../user/user.model');
 const minioClient = new Minio.Client({
   endPoint: 'object.mobinext.tech',
   useSSL: true,
-  accessKey: process.env.MINIO_ACCESSKEY,
-  secretKey: process.env.MINIO_SECRETKEY
+  accessKey: 'NXYWVCS8LF35W684YEUT', // process.env.MINIO_ACCESSKEY,
+  secretKey: 'e4ms5zotElnAAvnki9JG79HMRATAjvrlgGnIuoyU' // process.env.MINIO_SECRETKEY,
 });
 
 // const getMinioClient = new Minio.Client({
