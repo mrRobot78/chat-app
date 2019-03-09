@@ -25,12 +25,12 @@ const minioClient = new Minio.Client({
   secretKey: process.env.MINIO_SECRETKEY
 });
 
-const getMinioClient = new Minio.Client({
-  endPoint: 'env-8478623.mj.milesweb.cloud/minio',
-  useSSL: true,
-  accessKey: process.env.MINIO_ACCESSKEY,
-  secretKey: process.env.MINIO_SECRETKEY
-});
+// const getMinioClient = new Minio.Client({
+//   endPoint: 'env-8478623.mj.milesweb.cloud/minio',
+//   useSSL: true,
+//   accessKey: process.env.MINIO_ACCESSKEY,
+//   secretKey: process.env.MINIO_SECRETKEY,
+// });
 function putObject(newPath, fileStream, res, data, req) {
   console.log('hehe');
   const bodyImage = data;
@@ -101,7 +101,7 @@ function setData(req, res) {
 }
 function getUrlNew(fileName) {
   return new _promise2.default((resolve, reject) => {
-    getMinioClient.presignedUrl('GET', process.env.MINIO_BUCKET_NAME, fileName).then(url => {
+    minioClient.presignedUrl('GET', process.env.MINIO_BUCKET_NAME, fileName).then(url => {
       if (url) {
         resolve(url);
       }
