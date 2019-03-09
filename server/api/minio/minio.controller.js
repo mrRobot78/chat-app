@@ -67,11 +67,10 @@ function setData(req, res) {
   type = type.split('/');
   //  console.log('base64Data', base64Data);
   console.log('type', type);
-  console.log('matches ---- ', base64Data);
   if (bodyImage.fromWhere === 'user') {
     newPath = `chat${Date.now()}_${Math.ceil(Math.random(100000) * 1000000)}.${type[1]}`;
   }
-  const fileStream = new Buffer(base64Data, 'base64');
+  const fileStream = Buffer.from(base64Data, 'base64');
 
   return minioClient.bucketExists(process.env.MINIO_BUCKET_NAME, (err2, exists) => {
     if (err2) {
