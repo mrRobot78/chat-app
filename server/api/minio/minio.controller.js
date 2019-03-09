@@ -18,8 +18,8 @@ const Minio = require('minio');
 const Users = require('../user/user.model');
 
 const minioClient = new Minio.Client({
-  endPoint: '192.168.101.104',
-  useSSL: false,
+  endPoint: 'minio.mj.milesweb.cloud',
+  useSSL: true,
   accessKey: process.env.MINIO_ACCESSKEY,
   secretKey: process.env.MINIO_SECRETKEY
 });
