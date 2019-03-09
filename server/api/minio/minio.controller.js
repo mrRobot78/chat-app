@@ -75,7 +75,7 @@ function setData(req, res) {
 
   return minioClient.bucketExists(process.env.MINIO_BUCKET_NAME, (err2, exists) => {
     if (err2) {
-      console.log({ status: 500, msg: 'Bucket is not exists' });
+      console.log({ status: 500, msg: 'Bucket is not exists', err2 });
       // resolve(err2);
       return res.json(err2);
     }
