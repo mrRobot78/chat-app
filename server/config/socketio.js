@@ -1,11 +1,4 @@
-/**
- * Socket.io configuration
- */
 'use strict';
-
-// import config from './environment';
-
-// When the user disconnects.. perform this
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -16,6 +9,7 @@ var _stringify = require('babel-runtime/core-js/json/stringify');
 var _stringify2 = _interopRequireDefault(_stringify);
 
 exports.default = function (socketio) {
+  console.log('callled');
   // socket.io (v1.x.x) is powered by debug.
   // In order to see all the debug output, set DEBUG (in server/config/local.env.js) to including the desired scope.
   //
@@ -31,7 +25,7 @@ exports.default = function (socketio) {
   //   handshake: true
   // }));
 
-  socketio.on('connection', function (socket) {
+  socketio.on('connection', socket => {
     socket.address = `${socket.request.connection.remoteAddress}:${socket.request.connection.remotePort}`;
 
     socket.connectedAt = new Date();
@@ -48,13 +42,20 @@ exports.default = function (socketio) {
 
     // Call onConnect.
     onConnect(socket);
-    socket.log('CONNECTED');
+    socket.log('CONNECTED1');
   });
 };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function onDisconnect() /*socket*/{}
+/**
+ * Socket.io configuration
+ */
+
+// import config from './environment';
+
+// When the user disconnects.. perform this
+function onDisconnect() /* socket */{}
 
 // When the user connects.. perform this
 function onConnect(socket) {
@@ -62,7 +63,7 @@ function onConnect(socket) {
   socket.on('info', data => {
     socket.log((0, _stringify2.default)(data, null, 2));
   });
-  console.log('`SocketIO ${socket.nsp.name} [${socket.address}]`, ...data');
+  console.log(`SocketIO ${socket.nsp.name} [${socket.address}]`);
 
   // // Insert sockets below
   require('../api/chat/chat.socket').ChatSocket(socket);

@@ -7,9 +7,8 @@ Object.defineProperty(exports, "__esModule", {
 exports.default = function (app) {
   app.use('/api/login', require('./api/login'));
   app.use('/api/user', require('./api/user'));
-  app.use('/api/dashboard', require('./api/dashboard'));
   app.use('/api/chats', require('./api/chat'));
-
+  app.use('/api/dashboard', require('./api/dashboard'));
   // app.use((req, res, next) => {
   //   res.status(404);
   //

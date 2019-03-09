@@ -9,10 +9,18 @@ var _firebase = require('../../config/firebase');
 
 var _firebase2 = _interopRequireDefault(_firebase);
 
+var _async = require('async');
+
+var _async2 = _interopRequireDefault(_async);
+
+var _minio = require('../minio/minio.controller');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-const ref = _firebase2.default.ref('server'); /* eslint-disable import/prefer-default-export */
+const Users = require('../user/user.model'); /* eslint-disable import/prefer-default-export,no-mixed-operators,no-param-reassign,no-unused-vars */
 
+
+const ref = _firebase2.default.ref('server');
 function rad(x) {
   return x * Math.PI / 180;
 }
@@ -28,8 +36,8 @@ function getDistance(p1, p2) {
 }
 
 function profile(req, res) {
-  const usersRef = ref.child('users');
-  usersRef.once('value', snapshot => {
+  // const usersRef = ref.child('users');
+  Users.find({ IsActive: 1 }).then(snapshot => {
     const allUser = [];
     const lat = req.authData.Lat;
     const long = req.authData.Long;
@@ -39,8 +47,8 @@ function profile(req, res) {
     };
     console.log(p1);
     snapshot.forEach(item => {
-      if (req.authData.MobileNumber !== item.val().MobileNumber) {
-        allUser.push(item.val());
+      if (req.authData.MobileNumber !== item.MobileNumber) {
+        allUser.push(item);
       }
     });
     const userArr = [];
@@ -60,7 +68,28 @@ function profile(req, res) {
         }
       }
     });
-    res.send(userArr);
+    userArr.forEach((item, index) => {
+      if (item.Images.length > 0) {
+        const fileName = item.Images[item.Images.length - 1].Name;
+        (0, _minio.getUrl)(fileName).then(url => {
+          item.Profile = url;
+          if (userArr.length === index + 1) {
+            res.send(userArr);
+          }
+        }).catch(err => {
+          item.Profile = null;
+          if (userArr.length === index + 1) {
+            res.send(userArr);
+          }
+        });
+      } else {
+        item.Profile = null;
+        if (userArr.length === index + 1) {
+          console.log('aa');
+          res.send(userArr);
+        }
+      }
+    });
   });
 }
 //# sourceMappingURL=dashboard.controller.js.map

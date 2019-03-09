@@ -14,6 +14,7 @@ exports.update = update;
 exports.get = get;
 exports.userOTP = userOTP;
 exports.updatePassword = updatePassword;
+exports.updateImage = updateImage;
 
 var _crypto = require('crypto');
 
@@ -27,19 +28,27 @@ var _jsonwebtoken = require('jsonwebtoken');
 
 var _jsonwebtoken2 = _interopRequireDefault(_jsonwebtoken);
 
+var _async = require('async');
+
+var _async2 = _interopRequireDefault(_async);
+
 var _firebase = require('../../config/firebase');
 
 var _firebase2 = _interopRequireDefault(_firebase);
 
 var _redisoperation = require('../../config/redis/redisoperation');
 
+var _minio = require('../minio/minio.controller');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+const Users = require('./user.model');
 
 // const RedisClient = require('../../config/redis').redisClient;
 
+/* eslint-disable import/prefer-default-export,no-mixed-operators,no-unused-vars,max-len,no-underscore-dangle,no-param-reassign,consistent-return */
 const ref = _firebase2.default.ref('server');
 // getcurrentDate
-/* eslint-disable import/prefer-default-export,no-mixed-operators,no-unused-vars,max-len */
 function getDateWithoutTime(date) {
   const currentDateTime = new Date(date).toLocaleString().split(',');
   let currentDate = currentDateTime[0];
@@ -94,51 +103,92 @@ async function userOperation(user) {
 }
 function create(req, res) {
   console.log('add user', req.body);
-  userOperation(req.body).then(obj => {
-    console.log('obj', obj);
-    if (!obj.exist) {
-      console.log('eeee');
-      const usersRef = ref.child('users');
-      const userID = obj.lastUser.UserId + 1;
-      const password = decodePassword(req.body.password);
-      const user = {
-        UserId: userID,
-        Name: null,
-        MobileNumber: req.body.mobile,
-        Email: req.body.email,
-        Password: password,
-        Gender: null,
-        DOB: null,
-        CountryCode: req.body.countryCode,
-        InterestedIn: null,
-        School: null,
-        Company: null,
-        Job: null,
-        Lat: req.body.lat,
-        Long: req.body.long
-      };
-      usersRef.child(user.MobileNumber).set(user);
-      delete user.Password;
-      delete user.UserId;
-      _jsonwebtoken2.default.sign({ user }, process.env.JWT_SECKERT_KEY, (err, token) => {
-        if (err) {
-          return res.send({ status: false, msg: 'Something went wrong', data: user });
-        }
-        (0, _redisoperation.add)(`${user.MobileNumber}login`, token);
-        return res.send({ status: true, msg: 'Profile is created succesfully', data: user, token });
-      });
-      // have to delete password
-    } else {
-      return res.send({ status: false, msg: 'Mobile Already Register', data: null });
-    }
+  const password1 = decodePassword(req.body.password);
+  const user1 = {
+    Name: null,
+    MobileNumber: req.body.mobile,
+    Email: req.body.email,
+    Password: password1,
+    Gender: null,
+    DOB: null,
+    CountryCode: req.body.countryCode,
+    InterestedIn: null,
+    School: null,
+    Company: null,
+    Job: null,
+    Lat: req.body.lat,
+    Long: req.body.long,
+    Image: [{
+      Name: null,
+      IsActive: false
+    }]
+  };
+  Users.create(user1).then(result => {
+    const user = result;
+    user.Password = null;
+    user.IsActive = null;
+    _jsonwebtoken2.default.sign({ user }, process.env.JWT_SECKERT_KEY, (err, token) => {
+      if (err) {
+        return res.send({ status: false, msg: 'Something went wrong', data: user });
+      }
+      (0, _redisoperation.add)(`${user.MobileNumber}login`, token);
+      return res.send({ status: true, msg: 'Profile is created successfully', data: user, token });
+    });
   }).catch(err => {
-    console.log('ee', err);
-    return res.send({ status: false, msg: 'Profile is not created please try again', data: null });
+    if (err.errmsg.includes('MobileNumber')) {
+      return res.send({ status: false, msg: 'Mobile Number Already Register' });
+    } else if (err.errmsg.includes('Email')) {
+      return res.send({ status: false, msg: 'Email Already Register' });
+    }
+    return res.send({ status: false, msg: 'Something Went Wrong' });
   });
-}
 
+  // userOperation(req.body).then((obj) => {
+  //   console.log('obj', obj);
+  //   if (!obj.exist) {
+  //     console.log('eeee');
+  //     const usersRef = ref.child('users');
+  //     const userID = obj.lastUser.UserId + 1;
+  //     const password = decodePassword(req.body.password);
+  //     const user = {
+  //       UserId: userID,
+  //       Name: null,
+  //       MobileNumber: req.body.mobile,
+  //       Email: req.body.email,
+  //       Password: password,
+  //       Gender: null,
+  //       DOB: null,
+  //       CountryCode: req.body.countryCode,
+  //       InterestedIn: null,
+  //       School: null,
+  //       Company: null,
+  //       Job: null,
+  //       Lat: req.body.lat,
+  //       Long: req.body.long,
+  //     };
+  //     usersRef.child(user.MobileNumber)
+  //       .set(user);
+  //     delete user.Password;
+  //     delete user.UserId;
+  //     jwt.sign({ user }, process.env.JWT_SECKERT_KEY, (err, token) => {
+  //       if (err) {
+  //         return res.send({ status: false, msg: 'Something went wrong', data: user });
+  //       }
+  //       add(`${user.MobileNumber}login`, token);
+  //       return res.send({ status: true, msg: 'Profile is created succesfully', data: user, token });
+  //     });
+  //     // have to delete password
+  //   } else {
+  //     return res.send({ status: false, msg: 'Mobile Already Register', data: null });
+  //   }
+  // }).catch((err) => {
+  //   console.log('ee', err);
+  //   return res.send({ status: false, msg: 'Profile is not created please try again', data: null });
+  // });
+}
 function update(req, res) {
-  console.log(req.body);
+  console.log('update', req.body);
+  console.log('update', req.authData);
   const user = {
     Name: req.body.name,
     Gender: req.body.gender,
@@ -169,22 +219,52 @@ function update(req, res) {
   if (!user.Job) {
     delete user.Job;
   }
-  _firebase2.default.ref(`server/users/${req.body.phone}`).update(user);
-  res.send({ status: true, msg: 'Profile Updated Suceesfully', data: null });
-}
-
-function get(req, res) {
-  const usersRef = ref.child(`users/${req.authData.MobileNumber}`);
-  usersRef.once('value').then(snap => {
-    if (snap.exists()) {
-      const user = snap.val();
-      console.log('user', user);
-      return res.send({ status: true, msg: 'User Information', data: user });
-    }
-    return res.send({ status: false, msg: 'Account not Found', data: null });
+  const condition = { _id: req.authData._id };
+  Users.findOneAndUpdate(condition, user, { new: true }).then(result => {
+    const userResult = result;
+    userResult.Password = null;
+    userResult._id = null;
+    userResult.IsActive = null;
+    return res.send({ status: true, msg: 'Profile Updated Successfully', data: userResult });
+  }).catch(err => {
+    console.log(err);
   });
+  // DB.ref(`server/users/${req.body.phone}`).update(user);
+  // res.send({ status: true, msg: 'Profile Updated Suceesfully', data: null });
 }
-
+function get(req, res) {
+  Users.findById(req.authData._id, { _id: 0, Password: 0, IsActive: 0 }).then(user => {
+    if (user.Images.length > 0) {
+      let index = 0;
+      console.log(user.Images.length);
+      _async2.default.eachSeries(user.Images, (q, next) => {
+        index += 1;
+        (0, _minio.getUrl)(q.Name).then(url => {
+          q.URL = url;
+          if (user.Images.length === index) {
+            return res.send({ status: true, msg: 'User Information', data: user });
+          }
+          next();
+        }).catch(url => {
+          q.URL = url;
+          if (user.Images.length === index) {
+            return res.send({ status: true, msg: 'User Information', data: user });
+          }
+          next();
+        });
+      });
+    } else return res.send({ status: true, msg: 'User Information1', data: user });
+  });
+  // const usersRef = ref.child(`users/${req.authData.MobileNumber}`);
+  // usersRef.once('value').then((snap) => {
+  //   if (snap.exists()) {
+  //     const user = snap.val();
+  //     console.log('user', user);
+  //     return res.send({ status: true, msg: 'User Information', data: user });
+  //   }
+  //   return res.send({ status: false, msg: 'Account not Found', data: null });
+  // });
+}
 function userOTP(req, res) {
   console.log(req.body);
   if (req.body.isSendOTP) {
@@ -202,7 +282,7 @@ function userOTP(req, res) {
       code_length: 4
     }, { headers: { 'X-Authy-API-Key': process.env.OTP_SECURITY_API_KEY } }).then(response => res.send({ status: true, msg: 'OTP is send on Phone number', data: req.body })).catch(err => {
       console.log(err);
-      return res.send({ status: false, msg: 'Something went wrong', data: null });
+      return res.send({ status: false, msg: 'Something went wrong', data: err });
     });
 
     // });
@@ -226,7 +306,18 @@ function updatePassword(req, res) {
   const user = {
     Password: decodePassword(req.body.password)
   };
-  _firebase2.default.ref(`server/users/${req.body.phone}`).update(user);
-  res.send({ status: true, msg: 'Password updated succesfully', data: null });
+  // DB.ref(`server/users/${req.body.phone}`).update(user);
+  const condition = { MobileNumber: req.body.phone };
+  Users.findOneAndUpdate(condition, user).then(result => {
+    console.log(result);
+    return res.send({ status: true, msg: 'Password Updated Successfully' });
+  }).catch(err => {
+    console.log(err);
+  });
+}
+function updateImage(req, res) {
+  console.log('here', req.body);
+  req.body.fromWhere = 'user';
+  (0, _minio.setData)(req, res);
 }
 //# sourceMappingURL=user.controller.js.map

@@ -1,36 +1,37 @@
-/**
- * Chat model events
- */
-
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-var EventEmitter = require('events');
+/* eslint-disable guard-for-in,no-underscore-dangle,no-use-before-define,no-restricted-syntax */
+/**
+ * Chat model events
+ */
+
+const EventEmitter = require('events');
 
 // import {} from '';
-var ChatEvents = new EventEmitter();
+const ChatEvents = new EventEmitter();
 
 // Set max event listeners (0 == unlimited)
 ChatEvents.setMaxListeners(0);
 
 // Model events
-var events = {
+const events = {
   save: 'save',
   remove: 'remove'
 };
 
 // Register the event emitter to the model events
 function registerEvents(Chat) {
-
-  for (var e in events) {
-    let event = events[e];
+  for (const e in events) {
+    const event = events[e];
     Chat.post(e, emitEvent(event));
   }
 }
 
 function emitEvent(event) {
+  console.log('emitEvent', event);
   return function (doc) {
     ChatEvents.emit(`${event}:${doc._id}`, doc);
     ChatEvents.emit(event, doc);
