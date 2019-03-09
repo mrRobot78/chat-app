@@ -19,7 +19,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function connectMongo() {
   _mongoose2.default.set('useCreateIndex', true);
   _mongoose2.default.set('useFindAndModify', false);
-  return new _promise2.default((resolve, reject) => _mongoose2.default.connect(`mongodb://${process.env.DB_HOST}:27017/chat`, {
+  return new _promise2.default((resolve, reject) => _mongoose2.default.connect('mongodb://admin:mTs4QH5Zvm@192.168.100.132:27017/chat', {
     useNewUrlParser: true
   }).then(yes => resolve('conneted', yes)).catch(err => reject(`not connected${err}`)));
 }
