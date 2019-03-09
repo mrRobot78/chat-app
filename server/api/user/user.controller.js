@@ -316,7 +316,7 @@ function updatePassword(req, res) {
   });
 }
 function updateImage(req, res) {
-  console.log('here', req.body);
+  console.log('updateimage');
   req.body.fromWhere = 'user';
   (0, _minio.setData)(req, res);
 }
