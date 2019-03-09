@@ -13,11 +13,19 @@ exports.getUrl = getUrl;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-/* eslint-disable import/prefer-default-export,no-unused-vars,no-useless-escape,no-underscore-dangle */
+/* eslint-disable import/prefer-default-export,
+no-unused-vars,no-useless-escape,no-underscore-dangle */
 const Minio = require('minio');
 const Users = require('../user/user.model');
 
 const minioClient = new Minio.Client({
+  endPoint: '103.86.177.84',
+  useSSL: true,
+  accessKey: process.env.MINIO_ACCESSKEY,
+  secretKey: process.env.MINIO_SECRETKEY
+});
+
+const getMinioClient = new Minio.Client({
   endPoint: 'minio.mj.milesweb.cloud',
   useSSL: true,
   accessKey: process.env.MINIO_ACCESSKEY,
@@ -93,7 +101,7 @@ function setData(req, res) {
 }
 function getUrlNew(fileName) {
   return new _promise2.default((resolve, reject) => {
-    minioClient.presignedUrl('GET', process.env.MINIO_BUCKET_NAME, fileName).then(url => {
+    getMinioClient.presignedUrl('GET', process.env.MINIO_BUCKET_NAME, fileName).then(url => {
       if (url) {
         resolve(url);
       }
