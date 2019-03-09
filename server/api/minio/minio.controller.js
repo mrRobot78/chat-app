@@ -26,7 +26,7 @@ const minioClient = new Minio.Client({
 });
 
 const getMinioClient = new Minio.Client({
-  endPoint: 'env-8478623.mj.milesweb.cloud/minio/',
+  endPoint: 'env-8478623.mj.milesweb.cloud/minio',
   useSSL: true,
   accessKey: process.env.MINIO_ACCESSKEY,
   secretKey: process.env.MINIO_SECRETKEY
