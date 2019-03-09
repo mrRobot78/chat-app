@@ -19,8 +19,8 @@ const Minio = require('minio');
 const Users = require('../user/user.model');
 
 const minioClient = new Minio.Client({
-  endPoint: '103.86.177.84',
-  useSSL: false,
+  endPoint: 'object.mobinext.tech',
+  useSSL: true,
   accessKey: process.env.MINIO_ACCESSKEY,
   secretKey: process.env.MINIO_SECRETKEY
 });
