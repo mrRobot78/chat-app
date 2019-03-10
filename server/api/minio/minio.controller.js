@@ -19,15 +19,14 @@ const Minio = require('minio');
 const Users = require('../user/user.model');
 
 const minioClient = new Minio.Client({
-  endPoint: 'object.mobinext.tech',
+  endPoint: 'env-8478623.mj.milesweb.cloud',
   useSSL: true,
-  accessKey: 'NXYWVCS8LF35W684YEUT', // process.env.MINIO_ACCESSKEY,
-  secretKey: 'e4ms5zotElnAAvnki9JG79HMRATAjvrlgGnIuoyU' // process.env.MINIO_SECRETKEY,
+  accessKey: process.env.MINIO_ACCESSKEY,
+  secretKey: process.env.MINIO_SECRETKEY
 });
 
 // const getMinioClient = new Minio.Client({
 //   endPoint: 'env-8478623.mj.milesweb.cloud',
-//   port: 9000,
 //   useSSL: true,
 //   accessKey: process.env.MINIO_ACCESSKEY,
 //   secretKey: process.env.MINIO_SECRETKEY,
